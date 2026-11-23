@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DermoCare AI | Smart Skin Analysis & Care Advisor</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        teal: {
+                            50: '#f0f9f8',
+                            100: '#dcf2ef',
+                            200: '#bce4de',
+                            300: '#8ed0c6',
+                            400: '#5ab5a8',
+                            500: '#3a998c',
+                            600: '#2b7b71',
+                            700: '#27635c',
+                            800: '#23504b',
+                            900: '#20433f',
+                            950: '#0e2725',
+                        },
+                        mint: {
+                            50: '#f2faf7',
+                            100: '#e1f5ee',
+                            200: '#c5ebd3',
+                            300: '#9bd9b8',
+                            400: '#69bf97',
+                            500: '#43a37b',
+                            600: '#328362',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: #F4FAF8;
+            color: #2C5248;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(188, 228, 222, 0.6);
+        }
+
+        .custom-radio:checked + label {
+            border-color: #2b7b71;
+            background-color: #e1f5ee;
+            box-shadow: 0 4px 14px rgba(43, 123, 113, 0.15);
+        }
+
+        .custom-radio:checked + label .check-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Scan Animation Overlay */
+        @keyframes scanLine {
+            0% { top: 0%; opacity: 0.8; }
+            50% { top: 95%; opacity: 1; }
+            100% { top: 0%; opacity: 0.8; }
+        }
+
+        .scanner-line {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #20B2AA, #43a37b, transparent);
+            box-shadow: 0 0 15px #20B2AA;
+            animation: scanLine 2.5s ease-in-out infinite;
+            display: none;
+        }
+
+        @keyframes pulseNode {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.3); opacity: 1; }
+        }
+
+        .scan-node {
+            animation: pulseNode 1.5s infinite ease-in-out;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f0f9f8; }
+        ::-webkit-scrollbar-thumb { background: #8ed0c6; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #5ab5a8; }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- TOP SAFETY ANNOUNCEMENT -->
+    <div class="bg-teal-900 text-teal-100 text-xs py-2 px-4 text-center font-medium flex items-center justify-center gap-2 border-b border-teal-800">
+        <span class="bg-teal-700 text-white px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Educational Tool</span>
+        <i class="fa-solid fa-shield-halved text-mint-300"></i>
+        <span>This scanner provides general skin guidance. It is not a substitute for professional medical advice or diagnosis.</span>
+    </div>
+
+    <!-- NAVIGATION HEADER -->
+    <header class="sticky top-0 z-40 glass-card shadow-sm border-b border-teal-200/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-700 to-mint-500 flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-seedling text-lg"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-heading font-bold text-2xl tracking-tight text-teal-950">DermoCare<span class="text-teal-600 font-sans font-light">AI</span></span>
+                    <span class="text-[10px] tracking-widest uppercase text-teal-600 font-bold -mt-1">Dermal Care Advisor</span>
+                </div>
+            </a>
+
+            <nav class="hidden md:flex items-center space-x-8 font-semibold text-sm text-teal-800">
+                <a href="#home" class="hover:text-teal-600 transition-colors">Home</a>
+                <a href="#analyzer" class="hover:text-teal-600 transition-colors flex items-center gap-1.5">
+                    <span>Analyze Skin</span>
+                    <span class="px-2 py-0.5 rounded-full bg-mint-100 text-teal-800 text-[10px] font-bold">AI Guided</span>
+                </a>
+                <a href="#guide" class="hover:text-teal-600 transition-colors">Skin Guide</a>
+                <a href="#faq" class="hover:text-teal-600 transition-colors">FAQ</a>
+            </nav>
+
+            <a href="#analyzer" class="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-teal-700 to-teal-600 hover:from-teal-800 hover:to-teal-700 text-white text-xs font-bold rounded-xl shadow-md transition-all transform hover:-translate-y-0.5">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Start Free Analysis</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section id="home" class="relative py-16 sm:py-24 overflow-hidden">
+        <div class="absolute -top-12 -left-12 w-96 h-96 bg-mint-200/50 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute top-1/2 right-0 w-[28rem] h-[28rem] bg-teal-200/40 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <div class="lg:col-span-7 text-center lg:text-left space-y-6">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-100 border border-teal-300 text-teal-800 text-xs font-bold uppercase tracking-wider">
+                        <i class="fa-solid fa-microscope text-teal-600"></i> Smart Visual & Questionnaire Assessment
+                    </div>
+
+                    <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-extrabold text-teal-950 leading-tight">
+                        Understand Your Skin. <br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-700 via-teal-600 to-mint-600">Discover Actionable Care.</span>
+                    </h1>
+
+                    <p class="text-base sm:text-lg text-teal-800/90 font-normal leading-relaxed max-w-2xl mx-auto lg:mx-0">
+                        Upload a photo or complete our clinical questionnaire to pinpoint common concerns like pimples, hyperpigmentation, dryness, redness, or clogged pores—and build a targeted daily routine.
+                    </p>
+
+                    <div class="pt-4 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                        <a href="#analyzer" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-teal-700 to-teal-600 hover:from-teal-800 hover:to-teal-700 text-white rounded-2xl font-bold text-sm shadow-lg shadow-teal-700/20 transition-all text-center flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-camera-retro"></i> Launch Skin Analyzer
+                        </a>
+                        <a href="#guide" class="w-full sm:w-auto px-8 py-4 bg-white/80 hover:bg-white text-teal-800 border border-teal-200 rounded-2xl font-bold text-sm shadow-sm transition-all text-center">
+                            Explore Skin Guide
+                        </a>
+                    </div>
+
+                    <!-- Key features list -->
+                    <div class="pt-6 grid grid-cols-3 gap-4 border-t border-teal-200/80 max-w-lg mx-auto lg:mx-0 text-left">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-shield-cat text-teal-600 text-lg"></i>
+                            <div>
+                                <p class="text-xs font-bold text-teal-950">100% Private</p>
+                                <p class="text-[11px] text-teal-700">Processed in browser</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-vial text-teal-600 text-lg"></i>
+                            <div>
+                                <p class="text-xs font-bold text-teal-950">Active Solution</p>
+                                <p class="text-[11px] text-teal-700">Ingredient targeted</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-user-doctor text-teal-600 text-lg"></i>
+                            <div>
+                                <p class="text-xs font-bold text-teal-950">Red Flag Alerts</p>
+                                <p class="text-[11px] text-teal-700">Know when to visit MD</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Graphic Illustration -->
+                <div class="lg:col-span-5 flex justify-center">
+                    <div class="relative w-full max-w-md aspect-square bg-gradient-to-br from-mint-100 via-white to-teal-100 rounded-3xl p-6 border border-teal-200 shadow-xl flex flex-col justify-between overflow-hidden">
+                        <div class="flex items-center justify-between z-10">
+                            <span class="px-3 py-1 bg-white/90 rounded-full text-xs font-bold text-teal-800 border border-teal-200 shadow-2xs">Real-Time Dermal Scan</span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        </div>
+
+                        <!-- Simulated Skin Graphic -->
+                        <div class="my-auto relative flex flex-col items-center justify-center">
+                            <div class="w-52 h-52 rounded-full border-4 border-teal-300/80 p-2 relative bg-teal-50 flex items-center justify-center shadow-inner overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1512290900676-26c2a6a29590?auto=format&fit=crop&w=500&q=80" alt="Facial skin assessment preview" class="w-full h-full object-cover rounded-full">
+                                <div class="absolute inset-0 bg-teal-600/10 backdrop-brightness-105"></div>
+                                <!-- Overlay HUD Ring -->
+                                <svg class="absolute inset-0 w-full h-full pointer-events-none stroke-teal-500 opacity-60" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="45" fill="none" stroke-width="1" stroke-dasharray="4 2"/>
+                                    <circle cx="50" cy="50" r="35" fill="none" stroke-width="0.5"/>
+                                </svg>
+                            </div>
+                            <span class="mt-4 text-xs font-bold text-teal-900 bg-white/90 px-3 py-1 rounded-full border border-teal-200">Facial Zone Mapping Active</span>
+                        </div>
+
+                        <div class="bg-white/90 rounded-2xl p-3 border border-teal-200 text-center text-xs text-teal-800 z-10">
+                            <i class="fa-solid fa-sparkles text-mint-500 mr-1"></i> Detects pimples, redness, dark spots & moisture barrier health
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- MAIN ANALYZER SECTION -->
+    <section id="analyzer" class="py-16 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-10">
+            <span class="text-xs font-bold uppercase tracking-widest text-teal-700 bg-teal-100 px-3.5 py-1.5 rounded-full border border-teal-200">Interactive Diagnostic</span>
+            <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-teal-950 mt-3">Skin Analysis & Questionnaire</h2>
+            <p class="text-sm text-teal-700 mt-2">Upload a photo to visually analyze dermal nodes, then answer our brief guided questionnaire to receive a customized routine.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- LEFT COLUMN: IMAGE UPLOAD & VISUAL SCANNER HUD -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="glass-card rounded-3xl p-6 shadow-md border border-teal-200">
+                    <h3 class="font-heading font-bold text-lg text-teal-950 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-camera text-teal-600"></i> 1. Photo Analysis Scan
+                    </h3>
+
+                    <!-- Dropzone -->
+                    <div id="dropZone" class="border-2 border-dashed border-teal-300 hover:border-teal-600 bg-teal-50/50 hover:bg-teal-50 rounded-2xl p-6 text-center cursor-pointer transition-all relative overflow-hidden group">
+                        <input type="file" id="skinPhotoInput" accept="image/*" class="hidden">
+                        
+                        <div id="uploadPrompt" class="space-y-3">
+                            <div class="w-14 h-14 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-teal-950">Upload Clear Skin / Face Photo</p>
+                                <p class="text-[11px] text-teal-600 mt-0.5">Click to browse or drag & drop image</p>
+                            </div>
+                            <span class="inline-block text-[10px] bg-white text-teal-800 border border-teal-200 px-2.5 py-1 rounded-full font-medium">PNG, JPG or WEBP (Max 5MB)</span>
+                        </div>
+
+                        <!-- Image Preview & Canvas Overlay Frame -->
+                        <div id="previewWrapper" class="hidden relative w-full aspect-square rounded-xl overflow-hidden bg-black/90 shadow-inner">
+                            <img id="imagePreview" class="w-full h-full object-cover" alt="Uploaded skin photo">
+                            
+                            <!-- Scanner line animation -->
+                            <div id="scannerLine" class="scanner-line"></div>
+
+                            <!-- SVG HUD Overlay Nodes -->
+                            <svg id="hudOverlay" class="absolute inset-0 w-full h-full pointer-events-none hidden" viewBox="0 0 100 100">
+                                <!-- Target Reticles -->
+                                <circle cx="50" cy="35" r="10" fill="none" stroke="#20B2AA" stroke-width="0.8" stroke-dasharray="2 1"/>
+                                <circle cx="35" cy="55" r="8" fill="none" stroke="#43a37b" stroke-width="0.8"/>
+                                <circle cx="65" cy="55" r="8" fill="none" stroke="#43a37b" stroke-width="0.8"/>
+                                <circle cx="50" cy="72" r="7" fill="none" stroke="#20B2AA" stroke-width="0.8"/>
+
+                                <!-- Nodes -->
+                                <circle cx="50" cy="35" r="2" fill="#20B2AA" class="scan-node"/>
+                                <circle cx="35" cy="55" r="2" fill="#43a37b" class="scan-node"/>
+                                <circle cx="65" cy="55" r="2" fill="#43a37b" class="scan-node"/>
+                                <circle cx="50" cy="72" r="2" fill="#20B2AA" class="scan-node"/>
+
+                                <!-- Connecting Lines -->
+                                <line x1="50" y1="35" x2="35" y2="55" stroke="#20B2AA" stroke-width="0.5" opacity="0.6"/>
+                                <line x1="50" y1="35" x2="65" y2="55" stroke="#20B2AA" stroke-width="0.5" opacity="0.6"/>
+                                <line x1="35" y1="55" x2="50" y2="72" stroke="#43a37b" stroke-width="0.5" opacity="0.6"/>
+                                <line x1="65" y1="55" x2="50" y2="72" stroke="#43a37b" stroke-width="0.5" opacity="0.6"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Scan Trigger Button -->
+                    <button id="scanBtn" class="w-full mt-4 py-3 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50" disabled>
+                        <i class="fa-solid fa-expand"></i>
+                        <span id="scanBtnText">Scan Skin Photo</span>
+                    </button>
+
+                    <!-- Scan status message -->
+                    <div id="scanStatus" class="mt-3 text-center text-xs text-teal-700 font-medium min-h-[20px]"></div>
+
+                    <div class="mt-4 p-3 bg-teal-50/80 rounded-xl border border-teal-200 text-[11px] text-teal-800 flex items-start gap-2">
+                        <i class="fa-solid fa-lock text-teal-600 mt-0.5"></i>
+                        <span><strong>Local Browser Privacy:</strong> Your uploaded photo is analyzed locally in your client device and is never uploaded or saved to external cloud servers.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: GUIDED QUESTIONNAIRE -->
+            <div class="lg:col-span-7">
+                <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-md border border-teal-200">
+                    <h3 class="font-heading font-bold text-lg text-teal-950 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-question text-teal-600"></i> 2. Guided Diagnostic Questionnaire
+                    </h3>
+
+                    <form id="skinForm" class="space-y-6">
+                        
+                        <!-- Question 1: Location -->
+                        <div>
+                            <label class="block text-xs font-bold text-teal-950 uppercase tracking-wider mb-2">Q1. Where is the main concern located?</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                                <div>
+                                    <input type="radio" name="area" id="area_tzone" value="tzone" class="hidden custom-radio" required>
+                                    <label for="area_tzone" class="p-3 border border-teal-200 bg-white hover:bg-teal-50 rounded-xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all text-center h-20">
+                                        <i class="fa-solid fa-face-grimace text-teal-600 text-base"></i>
+                                        <span class="text-xs font-bold text-teal-950">T-Zone</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="area" id="area_cheeks" value="cheeks" class="hidden custom-radio">
+                                    <label for="area_cheeks" class="p-3 border border-teal-200 bg-white hover:bg-teal-50 rounded-xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all text-center h-20">
+                                        <i class="fa-solid fa-smile text-teal-600 text-base"></i>
+                                        <span class="text-xs font-bold text-teal-950">Cheeks & Chin</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="area" id="area_face" value="face" class="hidden custom-radio">
+                                    <label for="area_face" class="p-3 border border-teal-200 bg-white hover:bg-teal-50 rounded-xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all text-center h-20">
+                                        <i class="fa-solid fa-user text-teal-600 text-base"></i>
+                                        <span class="text-xs font-bold text-teal-950">Full Face</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="area" id="area_body" value="body" class="hidden custom-radio">
+                                    <label for="area_body" class="p-3 border border-teal-200 bg-white hover:bg-teal-50 rounded-xl flex flex-col items-center justify-center gap-1 cursor-pointer transition-all text-center h-20">
+                                        <i class="fa-solid fa-shirt text-teal-600 text-base"></i>
+                                        <span class="text-xs font-bold text-teal-950">Back / Chest</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Question 2: Primary Visual Signs -->
+                        <div>
+                            <label class="block text-xs font-bold text-teal-950 uppercase tracking-wider mb-2">Q2. What primary symptoms or visual signs do you observe?</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div>
+                                    <input type="radio" name="sign" id="sign_acne" value="acne" class="hidden custom-radio" required>
+                                    <label for="sign_acne" class="p-3 border border-teal-200 bg-white hover:bg-teal-50 rounded-xl flex items-center gap-3 cursor-pointer transition-all">
+                                        <div class="w-7 h-7 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-[#]">●</i></div>
+                                        <div class="text-left">
+                                            <p class="text-xs font-bold text-teal-950">Pimples / Red Bumps</p>
+                                            <p class="text-[10px] text-teal-600">Active breakouts or whiteheads</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="sign" id="sign_darkspots" value="darkspots" class="hidden custom-radio">
+                                    <label for="sign_darkspots" class="p-3 border border-teal-200 bg-white hover:bg-teal-50 rounded-xl flex items-center gap-3 cursor-pointer transition-all">
+                                        <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-circle"></i></div>
+                                        <div class="text-left">
+                                            <p class="text-xs font-bold text-teal-950">Dark Spots / Marks</p>
+                                            <p class="text-[10px] text-teal-600">Post-acne hyperpigmentation</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="sign" id="sign_dryness" value="dryness" class="hidden custom-radio">
+                                    <label for="sign_dryness" class="p-3 border border-teal-200 bg-white hover:bg-teal-50 rounded-xl flex items-center gap-3 cursor-pointer transition-all">
+                                        <div class="w-7 h-7 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-droplet"></i></div>
+                                        <div class="text-left">
+                                            <p class="text-xs font-bold text-teal-950">Flaking / Tightness</p>
+                                            <p class="text-[10px] text-teal-600">Rough texture or peeling</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="sign" id="sign_redness" value="redness" class="hidden custom-radio">
+                                    <label for="sign_redness" class="p-3 border border-teal-200 bg-white hover:bg-teal-50 rounded-xl flex items-center gap-3 cursor-pointer transition-all">
+                                        <div class="w-7 h-7 rounded-lg bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold"><i class="fa-solid fa-fire text-xs"></i></div>
+                                        <div class="text-left">
+                                            <p class="text-xs font-bold text-teal-950">Flushing / Redness</p>
+                                            <p class="text-[10px] text-teal-600">Visible capillaries or stinging</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Question 3: Skin Feel -->
+                        <div>
+                            <label class="block text-xs font-bold text-teal-950 uppercase tracking-wider mb-2">Q3. How does your skin feel throughout the day?</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                                <div>
+                                    <input type="radio" name="feel" id="feel_oily" value="oily" class="hidden custom-radio" required>
+                                    <label for="feel_oily" class="p-2.5 border border-teal-200 bg-white hover:bg-teal-50 rounded-xl text-center block cursor-pointer transition-all">
+                                        <p class="text-xs font-bold text-teal-950">Very Oily</p>
+                                        <p class="text-[10px] text-teal-600">Shine within 2 hrs</p>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="feel" id="feel_sensitive" value="sensitive" class="hidden custom-radio">
+                                    <label for="feel_sensitive" class="p-2.5 border border-teal-200 bg-white hover:bg-teal-50 rounded-xl text-center block cursor-pointer transition-all">
+                                        <p class="text-xs font-bold text-teal-950">Sensitive</p>
+                                        <p class="text-[10px] text-teal-600">Reacts quickly</p>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="feel" id="feel_dry" value="dry" class="hidden custom-radio">
+                                    <label for="feel_dry" class="p-2.5 border border-teal-200 bg-white hover:bg-teal-50 rounded-xl text-center block cursor-pointer transition-all">
+                                        <p class="text-xs font-bold text-teal-950">Dry / Tight</p>
+                                        <p class="text-[10px] text-teal-600">Lacks moisture</p>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="feel" id="feel_combo" value="combo" class="hidden custom-radio">
+                                    <label for="feel_combo" class="p-2.5 border border-teal-200 bg-white hover:bg-teal-50 rounded-xl text-center block cursor-pointer transition-all">
+                                        <p class="text-xs font-bold text-teal-950">Combination</p>
+                                        <p class="text-[10px] text-teal-600">Oily T-zone only</p>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Question 4: Duration -->
+                        <div>
+                            <label class="block text-xs font-bold text-teal-950 uppercase tracking-wider mb-2">Q4. How long has this condition been present?</label>
+                            <div class="grid grid-cols-3 gap-2.5">
+                                <div>
+                                    <input type="radio" name="duration" id="dur_recent" value="recent" class="hidden custom-radio" required>
+                                    <label for="dur_recent" class="p-2.5 border border-teal-200 bg-white hover:bg-teal-50 rounded-xl text-center block cursor-pointer transition-all">
+                                        <p class="text-xs font-bold text-teal-950">Recent Flare</p>
+                                        <p class="text-[10px] text-teal-600">&lt; 2 weeks</p>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="duration" id="dur_persistent" value="persistent" class="hidden custom-radio">
+                                    <label for="dur_persistent" class="p-2.5 border border-teal-200 bg-white hover:bg-teal-50 rounded-xl text-center block cursor-pointer transition-all">
+                                        <p class="text-xs font-bold text-teal-950">Persistent</p>
+                                        <p class="text-[10px] text-teal-600">Months / Ongoing</p>
+                                    </label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="duration" id="dur_seasonal" value="seasonal" class="hidden custom-radio">
+                                    <label for="dur_seasonal" class="p-2.5 border border-teal-200 bg-white hover:bg-teal-50 rounded-xl text-center block cursor-pointer transition-all">
+                                        <p class="text-xs font-bold text-teal-950">Seasonal</p>
+                                        <p class="text-[10px] text-teal-600">Triggers occasionally</p>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full py-4 bg-gradient-to-r from-teal-700 via-teal-600 to-mint-600 hover:from-teal-800 hover:to-teal-700 text-white font-bold text-sm rounded-2xl shadow-lg shadow-teal-700/20 transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-notes-medical"></i>
+                            <span>Generate Analysis & Customized Routine</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS SECTION -->
+        <div id="resultsSection" class="hidden mt-12 space-y-8">
+            <div class="bg-gradient-to-r from-teal-900 via-teal-800 to-teal-950 rounded-3xl p-6 sm:p-10 text-white shadow-2xl relative overflow-hidden">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-teal-700/80 pb-6 mb-6">
+                    <div>
+                        <span id="resultBadge" class="px-3.5 py-1 bg-mint-400 text-teal-950 text-xs font-extrabold rounded-full uppercase tracking-wider">Primary Match</span>
+                        <h2 id="resultTitle" class="font-heading text-3xl font-bold text-white mt-2">Acne Vulgaris & Clogged Pores</h2>
+                        <p id="resultSubtitle" class="text-xs sm:text-sm text-teal-200 mt-1">Identified based on active papules and excess sebum production</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="text-right">
+                            <p class="text-[10px] text-teal-300 uppercase tracking-wider font-bold">Diagnostic Confidence</p>
+                            <p id="resultConfidence" class="text-2xl font-black text-mint-300">92%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 Grid Analysis Breakdown -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Root Causes -->
+                    <div class="bg-teal-800/60 rounded-2xl p-4 border border-teal-700/60">
+                        <h4 class="font-bold text-xs uppercase tracking-wider text-mint-300 mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-nodes"></i> Root Causes
+                        </h4>
+                        <ul id="rootCausesList" class="text-xs text-teal-100 space-y-1.5">
+                            <!-- Injected JS -->
+                        </ul>
+                    </div>
+
+                    <!-- Recommended Routine -->
+                    <div class="bg-teal-800/60 rounded-2xl p-4 border border-teal-700/60">
+                        <h4 class="font-bold text-xs uppercase tracking-wider text-mint-300 mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-clock font-normal"></i> Recommended Routine
+                        </h4>
+                        <ul id="routineList" class="text-xs text-teal-100 space-y-1.5">
+                            <!-- Injected JS -->
+                        </ul>
+                    </div>
+
+                    <!-- Ingredients to Seek -->
+                    <div class="bg-teal-800/60 rounded-2xl p-4 border border-teal-700/60">
+                        <h4 class="font-bold text-xs uppercase tracking-wider text-emerald-300 mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-flask"></i> Key Ingredients to LOOK FOR
+                        </h4>
+                        <div id="seekIngredients" class="flex flex-wrap gap-1.5">
+                            <!-- Injected JS -->
+                        </div>
+                    </div>
+
+                    <!-- Habits & Ingredients to Avoid -->
+                    <div class="bg-teal-800/60 rounded-2xl p-4 border border-teal-700/60">
+                        <h4 class="font-bold text-xs uppercase tracking-wider text-rose-300 mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-ban"></i> Ingredients & Habits to AVOID
+                        </h4>
+                        <ul id="avoidList" class="text-xs text-teal-100 space-y-1.5">
+                            <!-- Injected JS -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- RED FLAG DERMATOLOGIST ALERT BAR -->
+                <div id="redFlagBox" class="mt-8 p-4 rounded-2xl bg-rose-950/80 border border-rose-700/70 text-rose-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-400 text-xl mt-0.5"></i>
+                        <div>
+                            <h5 class="font-bold text-xs uppercase tracking-wider text-rose-300">When to see a Board-Certified Dermatologist</h5>
+                            <p id="redFlagText" class="text-xs text-rose-200 mt-0.5">If you experience painful cystic nodules, rapid spreading, fever, or lesions that bleed or fail to heal after 4 weeks, professional medical evaluation is required.</p>
+                        </div>
+                    </div>
+                    <a href="https://find-a-derm.aad.org" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-rose-700 hover:bg-rose-600 text-white text-xs font-bold rounded-xl whitespace-nowrap transition-colors shadow-sm">
+                        Find Local Dermatologist <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: EDUCATIONAL SKIN CARE GUIDE -->
+    <section id="guide" class="py-16 bg-teal-100/40 border-t border-teal-200/60">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <span class="text-xs font-bold uppercase tracking-widest text-teal-700 bg-white px-3.5 py-1.5 rounded-full border border-teal-200">Knowledge Hub</span>
+                <h2 class="font-heading text-3xl font-extrabold text-teal-950 mt-3">Common Skin Concerns Quick Guide</h2>
+                <p class="text-sm text-teal-700 mt-2">Learn how different dermal conditions behave and what evidence-based active ingredients best support recovery.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <!-- Card 1: Acne -->
+                <div class="glass-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
+                    <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-sm mb-3">
+                        <i class="fa-solid fa-disease"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-teal-950 mb-1">Acne & Breakouts</h3>
+                    <p class="text-xs text-teal-700 leading-relaxed mb-3">Occurs when hair follicles become clogged with oil (sebum) and dead skin cells, causing bacterial proliferation (C. acnes).</p>
+                    <div class="text-[11px] bg-white p-2.5 rounded-xl border border-teal-200">
+                        <strong class="text-teal-900 block mb-1">Best Actives:</strong>
+                        <span class="text-teal-700">Salicylic Acid (BHA), Benzoyl Peroxide, Niacinamide, Retinoids.</span>
+                    </div>
+                </div>
+
+                <!-- Card 2: Hyperpigmentation -->
+                <div class="glass-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-sm mb-3">
+                        <i class="fa-solid fa-[#]">●</i>
+                    </div>
+                    <h3 class="font-bold text-base text-teal-950 mb-1">Hyperpigmentation</h3>
+                    <p class="text-xs text-teal-700 leading-relaxed mb-3">Post-inflammatory dark spots caused by melanin overproduction following acne breakouts or UV sun damage.</p>
+                    <div class="text-[11px] bg-white p-2.5 rounded-xl border border-teal-200">
+                        <strong class="text-teal-900 block mb-1">Best Actives:</strong>
+                        <span class="text-teal-700">Azelaic Acid, Vitamin C, Alpha Arbutin, Tranexamic Acid, Mineral SPF.</span>
+                    </div>
+                </div>
+
+                <!-- Card 3: Compromised Barrier -->
+                <div class="glass-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
+                    <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm mb-3">
+                        <i class="fa-solid fa-shield"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-teal-950 mb-1">Barrier Dehydration</h3>
+                    <p class="text-xs text-teal-700 leading-relaxed mb-3">Damage to the skin's lipid barrier causing moisture loss, flaking, tightness, and increased susceptibility to irritants.</p>
+                    <div class="text-[11px] bg-white p-2.5 rounded-xl border border-teal-200">
+                        <strong class="text-teal-900 block mb-1">Best Actives:</strong>
+                        <span class="text-teal-700">Ceramides, Hyaluronic Acid, Glycerin, Centella Asiatica, Squalane.</span>
+                    </div>
+                </div>
+
+                <!-- Card 4: Rosacea -->
+                <div class="glass-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-all">
+                    <div class="w-10 h-10 rounded-xl bg-red-100 text-red-700 flex items-center justify-center font-bold text-sm mb-3">
+                        <i class="fa-solid fa-fire"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-teal-950 mb-1">Rosacea & Flushing</h3>
+                    <p class="text-xs text-teal-700 leading-relaxed mb-3">Vascular hypersensitivity leading to persistent facial flushing, visible blood vessels, and burning sensations.</p>
+                    <div class="text-[11px] bg-white p-2.5 rounded-xl border border-teal-200">
+                        <strong class="text-teal-900 block mb-1">Best Actives:</strong>
+                        <span class="text-teal-700">Azelaic Acid 10%, Colloidal Oatmeal, Panthenol, Allantoin, Zinc Oxide.</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FREQUENTLY ASKED QUESTIONS SECTION -->
+    <section id="faq" class="py-16 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-10">
+            <span class="text-xs font-bold uppercase tracking-widest text-teal-700 bg-teal-100 px-3.5 py-1.5 rounded-full border border-teal-200">FAQ</span>
+            <h2 class="font-heading text-3xl font-extrabold text-teal-950 mt-3">Frequently Asked Questions</h2>
+        </div>
+
+        <div class="space-y-4">
+            
+            <div class="glass-card rounded-2xl p-5 border border-teal-200 transition-all">
+                <button onclick="toggleFaq(this)" class="w-full flex justify-between items-center text-left font-bold text-sm text-teal-950 focus:outline-none">
+                    <span>How does the photo scan scanner work?</span>
+                    <i class="fa-solid fa-chevron-down text-teal-600 transition-transform"></i>
+                </button>
+                <div class="faq-answer hidden mt-3 pt-3 border-t border-teal-100 text-xs text-teal-800 leading-relaxed">
+                    Our scanner processes image pixels directly inside your web browser. It overlays a diagnostic grid to identify facial zones (T-zone, cheeks) and matches questionnaire inputs against dermatologist-informed care algorithms.
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-5 border border-teal-200 transition-all">
+                <button onclick="toggleFaq(this)" class="w-full flex justify-between items-center text-left font-bold text-sm text-teal-950 focus:outline-none">
+                    <span>Is my uploaded skin photo kept private?</span>
+                    <i class="fa-solid fa-chevron-down text-teal-600 transition-transform"></i>
+                </button>
+                <div class="faq-answer hidden mt-3 pt-3 border-t border-teal-100 text-xs text-teal-800 leading-relaxed">
+                    Yes, 100%. Your photos are processed exclusively within your browser session memory (`Blob URL`). No image data is transmitted to or stored on any external server.
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-5 border border-teal-200 transition-all">
+                <button onclick="toggleFaq(this)" class="w-full flex justify-between items-center text-left font-bold text-sm text-teal-950 focus:outline-none">
+                    <span>How long does it take to see results with active skincare?</span>
+                    <i class="fa-solid fa-chevron-down text-teal-600 transition-transform"></i>
+                </button>
+                <div class="faq-answer hidden mt-3 pt-3 border-t border-teal-100 text-xs text-teal-800 leading-relaxed">
+                    Cellular turnover takes approximately 28 to 40 days. Consistent use of actives like Salicylic Acid or Azelaic Acid usually yields noticeable improvements within 4 to 8 weeks.
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-5 border border-teal-200 transition-all">
+                <button onclick="toggleFaq(this)" class="w-full flex justify-between items-center text-left font-bold text-sm text-teal-950 focus:outline-none">
+                    <span>Can I combine multiple active ingredients at once?</span>
+                    <i class="fa-solid fa-chevron-down text-teal-600 transition-transform"></i>
+                </button>
+                <div class="faq-answer hidden mt-3 pt-3 border-t border-teal-100 text-xs text-teal-800 leading-relaxed">
+                    Be cautious. Combining strong exfoliants (e.g. Salicylic Acid) with Retinoids or Benzoyl Peroxide at the same time can strip your moisture barrier. It is recommended to alternate ingredients between AM and PM routines.
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- DISCLAIMER FOOTER -->
+    <footer class="bg-teal-950 text-white py-12 border-t border-teal-900 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-12 gap-8 pb-10 border-b border-teal-900">
+            
+            <div class="md:col-span-6 space-y-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-mint-500 flex items-center justify-center text-teal-950 font-bold text-xs">
+                        <i class="fa-solid fa-seedling"></i>
+                    </div>
+                    <span class="font-heading font-bold text-xl">DermoCare AI</span>
+                </div>
+                <p class="text-xs text-teal-300 leading-relaxed max-w-md">
+                    Empowering users with evidence-based skin literacy and guided routine recommendations. Built with client-side privacy safeguards.
+                </p>
+            </div>
+
+            <div class="md:col-span-6 bg-teal-900/60 rounded-2xl p-4 border border-teal-800 text-xs text-teal-200 space-y-2">
+                <h5 class="font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-user-doctor text-mint-400"></i> Medical Disclaimer
+                </h5>
+                <p class="leading-relaxed">
+                    DermoCare AI is an educational guidance tool intended to assist with general skin wellness. It does not provide medical diagnoses or prescriptions. Always consult a certified dermatologist or licensed medical provider for clinical skin evaluation or treatment of medical conditions.
+                </p>
+            </div>
+
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-teal-400 gap-4">
+            <p>© 2026 DermoCare AI | All rights reserved.</p>
+            <div class="flex gap-6">
+                <a href="#analyzer" class="hover:text-white transition-colors">Analyzer</a>
+                <a href="#guide" class="hover:text-white transition-colors">Skin Guide</a>
+                <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // DOM ELEMENTS
+        const dropZone = document.getElementById('dropZone');
+        const skinPhotoInput = document.getElementById('skinPhotoInput');
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        const previewWrapper = document.getElementById('previewWrapper');
+        const imagePreview = document.getElementById('imagePreview');
+        const scanBtn = document.getElementById('scanBtn');
+        const scanBtnText = document.getElementById('scanBtnText');
+        const scannerLine = document.getElementById('scannerLine');
+        const hudOverlay = document.getElementById('hudOverlay');
+        const scanStatus = document.getElementById('scanStatus');
+        const skinForm = document.getElementById('skinForm');
+        const resultsSection = document.getElementById('resultsSection');
+
+        let uploadedImageURL = null;
+
+        // UPLOAD DROPZONE EVENT HANDLERS
+        dropZone.addEventListener('click', (e) => {
+            if (e.target.id !== 'scanBtn' && !scanBtn.contains(e.target)) {
+                skinPhotoInput.click();
+            }
+        });
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-teal-600', 'bg-teal-100/50');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('border-teal-600', 'bg-teal-100/50');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-teal-600', 'bg-teal-100/50');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) handleFile(files[0]);
+        });
+
+        skinPhotoInput.addEventListener('change', function() {
+            if (this.files.length > 0) handleFile(this.files[0]);
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                scanStatus.innerHTML = '<span class="text-rose-600 font-bold">Please select a valid image file.</span>';
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                scanStatus.innerHTML = '<span class="text-rose-600 font-bold">Image size must be under 5MB.</span>';
+                return;
+            }
+
+            if (uploadedImageURL) {
+                URL.revokeObjectURL(uploadedImageURL);
+            }
+
+            uploadedImageURL = URL.createObjectURL(file);
+            imagePreview.src = uploadedImageURL;
+            uploadPrompt.classList.add('hidden');
+            previewWrapper.classList.remove('hidden');
+            scanBtn.disabled = false;
+            scanStatus.innerHTML = '<span class="text-teal-700">Photo loaded. Click "Scan Skin Photo" to trigger analysis overlay.</span>';
+        }
+
+        // SIMULATED SCANNER HUD FUNCTIONALITY
+        scanBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!uploadedImageURL) return;
+
+            scanBtn.disabled = true;
+            scanBtnText.textContent = 'Scanning Dermal Layers...';
+            scannerLine.style.display = 'block';
+            hudOverlay.classList.remove('hidden');
+            scanStatus.innerHTML = '<span class="text-teal-700 animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Mapping facial nodes & detecting surface texture patterns...</span>';
+
+            setTimeout(() => {
+                scannerLine.style.display = 'none';
+                scanBtnText.textContent = 'Scan Complete ✓';
+                scanStatus.innerHTML = '<span class="text-emerald-700 font-bold"><i class="fa-solid fa-circle-check mr-1"></i> Dermal Node Mapping Completed! Complete the questionnaire to see results.</span>';
+            }, 2500);
+        });
+
+        // QUESTIONNAIRE DIAGNOSTIC DATABASE
+        const diagnosticsDB = {
+            acne: {
+                title: "Acne Vulgaris & Active Breakouts",
+                subtitle: "Characterized by inflammatory papules, pustules, or comedones",
+                confidence: "94%",
+                causes: [
+                    "Excessive sebum (oil) production",
+                    "Follicular hyperkeratinization (clogged pores)",
+                    "Colonization by Cutibacterium acnes bacteria",
+                    "Hormonal fluctuations or friction"
+                ],
+                routine: [
+                    "<strong>AM:</strong> Gentle foaming cleanser + 2% Salicylic Acid + Light Gel Moisturizer + Mineral SPF 30+",
+                    "<strong>PM:</strong> Double cleanse + 10% Azelaic Acid or Benzoyl Peroxide + Non-comedogenic moisturizer"
+                ],
+                seek: ["Salicylic Acid (BHA)", "Benzoyl Peroxide", "Niacinamide (3-5%)", "Zinc PCA", "Adapalene"],
+                avoid: [
+                    "Comedogenic heavy oils (Coconut oil)",
+                    "Harsh mechanical face scrubs",
+                    "Picking or popping blemishes",
+                    "Fragrance-heavy formulations"
+                ],
+                redFlag: "If you develop deep, painful cystic lumps under the skin or scarring, seek a dermatologist for prescription oral or topical retinoids."
+            },
+            darkspots: {
+                title: "Post-Inflammatory Hyperpigmentation (PIH)",
+                subtitle: "Darkened spots resulting from prior skin inflammation or UV exposure",
+                confidence: "91%",
+                causes: [
+                    "Overproduction of melanin during inflammatory healing",
+                    "Unprotected exposure to UV radiation worsening pigmentation",
+                    "Skin picking or manual trauma to acne lesions"
+                ],
+                routine: [
+                    "<strong>AM:</strong> Gentle cleanser + Vitamin C serum (L-Ascorbic Acid) + Ceramide moisturizer + Broad-spectrum SPF 50",
+                    "<strong>PM:</strong> Gentle cleanser + Alpha Arbutin or Tranexamic Acid + Niacinamide cream"
+                ],
+                seek: ["Vitamin C", "Alpha Arbutin", "Tranexamic Acid", "Azelaic Acid", "Broad-Spectrum SPF"],
+                avoid: [
+                    "Skipping sunscreen (UV rays darken spots)",
+                    "Aggressive chemical peels without guidance",
+                    "Physical squeezing of dark spots"
+                ],
+                redFlag: "Any dark spot that changes shape, size, or color, or has asymmetrical borders requires immediate dermatological skin cancer screening."
+            },
+            dryness: {
+                title: "Dehydrated & Compromised Barrier",
+                subtitle: "Impaired lipid barrier leading to rapid transepidermal water loss",
+                confidence: "89%",
+                causes: [
+                    "Depletion of natural skin ceramides and lipids",
+                    "Over-exfoliation with strong acids or harsh soaps",
+                    "Environmental factors (cold air, low humidity, heating)"
+                ],
+                routine: [
+                    "<strong>AM:</strong> Hydrating non-foaming cleanser + Hyaluronic Acid + Ceramide Cream + Hydrating SPF",
+                    "<strong>PM:</strong> Cream cleanser + Centella serum + Rich Barrier Repair Moisturizer with Squalane"
+                ],
+                seek: ["Ceramides AP/EOP/NP", "Hyaluronic Acid", "Centella Asiatica", "Squalane", "Glycerin"],
+                avoid: [
+                    "Foaming sulfate cleansers",
+                    "Alcohol-based astringent toners",
+                    "Hot water face washing",
+                    "Active exfoliants until barrier heals"
+                ],
+                redFlag: "Severe peeling accompanied by intense burning, raw skin, or weeping fluid warrants medical barrier evaluation."
+            },
+            redness: {
+                title: "Rosacea & Vascular Sensitivity",
+                subtitle: "Hypersensitive cutaneous microvasculature and flushing response",
+                confidence: "88%",
+                causes: [
+                    "Hyper-reactive facial blood vessels",
+                    "Triggers such as spicy foods, heat, alcohol, or stress",
+                    "Disrupted stratum corneum barrier"
+                ],
+                routine: [
+                    "<strong>AM:</strong> Ultra-gentle lotion cleanser + 10% Azelaic Acid + Soothing Oat Cream + Zinc Oxide SPF 30",
+                    "<strong>PM:</strong> Calming cleanser + Panthenol / Allantoin serum + Lipid barrier cream"
+                ],
+                seek: ["Azelaic Acid 10%", "Colloidal Oatmeal", "Zinc Oxide", "Panthenol (Vitamin B5)", "Allantoin"],
+                avoid: [
+                    "Hot showers & saunas",
+                    "Alcohol-based skincare",
+                    "Glycolic Acid & strong scrubs",
+                    "Menthol or Eucalyptus oils"
+                ],
+                redFlag: "Ocular redness, eye irritation, or persistent central facial swelling requires specialized medical intervention."
+            }
+        };
+
+        // FORM SUBMISSION DIAGNOSTIC LOGIC
+        skinForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const selectedSign = document.querySelector('input[name="sign"]:checked')?.value || 'acne';
+            const diagnosticData = diagnosticsDB[selectedSign] || diagnosticsDB.acne;
+
+            // Render Results
+            document.getElementById('resultTitle').textContent = diagnosticData.title;
+            document.getElementById('resultSubtitle').textContent = diagnosticData.subtitle;
+            document.getElementById('resultConfidence').textContent = diagnosticData.confidence;
+
+            // Root causes
+            const rootCausesList = document.getElementById('rootCausesList');
+            rootCausesList.innerHTML = diagnosticData.causes.map(c => `<li><i class="fa-solid fa-angle-right text-mint-400 mr-1"></i> ${c}</li>`).join('');
+
+            // Routine
+            const routineList = document.getElementById('routineList');
+            routineList.innerHTML = diagnosticData.routine.map(r => `<li class="mb-1">${r}</li>`).join('');
+
+            // Seek ingredients
+            const seekIngredients = document.getElementById('seekIngredients');
+            seekIngredients.innerHTML = diagnosticData.seek.map(i => `<span class="px-2 py-0.5 bg-emerald-950/80 text-emerald-200 border border-emerald-700/60 rounded-md text-[11px] font-bold">${i}</span>`).join('');
+
+            // Avoid list
+            const avoidList = document.getElementById('avoidList');
+            avoidList.innerHTML = diagnosticData.avoid.map(a => `<li><i class="fa-solid fa-xmark text-rose-400 mr-1"></i> ${a}</li>`).join('');
+
+            // Red flag text
+            document.getElementById('redFlagText').textContent = diagnosticData.redFlag;
+
+            // Display results container & scroll smoothly
+            resultsSection.classList.remove('hidden');
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // ACCORDION FAQ TOGGLE
+        function toggleFaq(btn) {
+            const answer = btn.nextElementSibling;
+            const icon = btn.querySelector('.fa-chevron-down');
+            
+            if (answer.classList.contains('hidden')) {
+                answer.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                answer.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+    </script>
+</body>
+</html>
