@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BodyType AI | Silhouette Guide</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+body {
+    background: #f1f9ff;
+    color: #294b65;
+}
+
+/* NAVIGATION */
+header {
+    background: #cceaff;
+    padding: 20px 8%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 3px 12px #b5d9ed;
+}
+
+.logo {
+    font-size: 25px;
+    font-weight: bold;
+    color: #2675a5;
+}
+
+nav a {
+    text-decoration: none;
+    color: #315b77;
+    margin-left: 20px;
+    font-weight: 600;
+}
+
+/* HERO */
+.hero {
+    padding: 75px 10%;
+    text-align: center;
+    background: linear-gradient(135deg, #dff3ff, #b9e2fa);
+}
+
+.hero h1 {
+    font-size: 42px;
+    color: #216b9b;
+    margin-bottom: 15px;
+}
+
+.hero p {
+    max-width: 650px;
+    margin: auto;
+    line-height: 1.7;
+    color: #496d83;
+}
+
+.btn {
+    display: inline-block;
+    border: none;
+    background: #459dd2;
+    color: white;
+    padding: 13px 28px;
+    border-radius: 25px;
+    cursor: pointer;
+    margin-top: 22px;
+    font-size: 15px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #247caf;
+    transform: translateY(-2px);
+}
+
+/* MAIN CONTENT */
+.container {
+    max-width: 950px;
+    margin: 45px auto;
+    padding: 20px;
+}
+
+.section-title {
+    text-align: center;
+    color: #2675a5;
+    font-size: 29px;
+    margin-bottom: 12px;
+}
+
+.subtitle {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #668399;
+    line-height: 1.6;
+}
+
+.card {
+    background: white;
+    padding: 30px;
+    border-radius: 18px;
+    box-shadow: 0 5px 20px rgba(69, 142, 185, 0.12);
+    margin-bottom: 25px;
+}
+
+.card h3 {
+    color: #287eae;
+    margin-bottom: 15px;
+}
+
+/* UPLOAD */
+.upload-area {
+    border: 2px dashed #80bce1;
+    background: #f2faff;
+    padding: 35px 15px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.upload-area p {
+    margin-bottom: 12px;
+}
+
+input[type="file"] {
+    max-width: 100%;
+    margin-top: 15px;
+}
+
+#preview {
+    display: none;
+    width: 200px;
+    height: 230px;
+    object-fit: contain;
+    margin: 20px auto 0;
+    border-radius: 12px;
+    border: 3px solid #c3e6fa;
+    background: #eaf7ff;
+}
+
+/* QUESTIONS */
+.question {
+    margin-bottom: 25px;
+}
+
+.question p {
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.option {
+    display: block;
+    background: #eff8ff;
+    padding: 13px;
+    border-radius: 10px;
+    margin-bottom: 9px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.option:hover {
+    background: #d9efff;
+}
+
+.option input {
+    margin-right: 10px;
+    accent-color: #459dd2;
+}
+
+/* RESULTS */
+#result {
+    display: none;
+    background: #e4f4ff;
+    border: 2px solid #a7d8f5;
+    border-radius: 18px;
+    padding: 30px;
+    text-align: center;
+}
+
+#result h2 {
+    color: #2478aa;
+    margin-bottom: 15px;
+}
+
+.result-name {
+    font-size: 27px;
+    font-weight: bold;
+    color: #2675a5;
+    margin: 15px 0;
+}
+
+.result-description {
+    line-height: 1.7;
+}
+
+#result ul {
+    text-align: left;
+    max-width: 500px;
+    margin: 20px auto;
+    line-height: 2;
+}
+
+/* ABOUT */
+.about {
+    background: #dcefff;
+    text-align: center;
+    padding: 45px 10%;
+    line-height: 1.8;
+}
+
+footer {
+    background: #b9ddf4;
+    text-align: center;
+    padding: 20px;
+    color: #315c78;
+    font-size: 14px;
+}
+
+/* MOBILE */
+@media(max-width: 600px) {
+    header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    nav a {
+        margin: 0 7px;
+        font-size: 13px;
+    }
+
+    .hero h1 {
+        font-size: 30px;
+    }
+
+    .card {
+        padding: 20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAVIGATION -->
+<header>
+    <div class="logo">🩵 BodyType AI</div>
+
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#identify">Identify</a>
+        <a href="#about">About</a>
+    </nav>
+</header>
+
+<!-- HOME -->
+<section class="hero" id="home">
+
+    <h1>Discover Your Silhouette</h1>
+
+    <p>
+        Welcome to BodyType AI! Explore your clothing-fit
+        preferences and silhouette patterns through a
+        simple and interactive assessment.
+    </p>
+
+    <a href="#identify">
+        <button class="btn">Get Started</button>
+    </a>
+
+</section>
+
+<!-- IDENTIFICATION -->
+<section class="container" id="identify">
+
+    <h2 class="section-title">
+        Silhouette Identification
+    </h2>
+
+    <p class="subtitle">
+        Upload an optional photo for preview and answer
+        the questions to explore your silhouette category.
+    </p>
+
+    <!-- PHOTO UPLOAD -->
+    <div class="card">
+
+        <h3>📷 Upload Your Picture</h3>
+
+        <div class="upload-area">
+
+            <p>Select an image from your device.</p>
+
+            <input
+                type="file"
+                id="photo"
+                accept="image/*"
+            >
+
+            <img id="preview" alt="Uploaded photo preview">
+
+            <p style="font-size:12px; color:#668399; margin-top:12px;">
+                Your photo stays in your browser and is
+                not used for identification.
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- QUESTIONNAIRE -->
+    <div class="card">
+
+        <h3>📝 Silhouette Assessment</h3>
+
+        <form id="assessment">
+
+            <div class="question">
+
+                <p>1. Where do your clothes usually need more room?</p>
+
+                <label class="option">
+                    <input type="radio" name="q1" value="upper" required>
+                    Shoulder and chest area
+                </label>
+
+                <label class="option">
+                    <input type="radio" name="q1" value="lower">
+                    Hip and thigh area
+                </label>
+
+                <label class="option">
+                    <input type="radio" name="q1" value="balanced">
+                    Both upper and lower areas
+                </label>
+
+                <label class="option">
+                    <input type="radio" name="q1" value="straight">
+                    I usually prefer a straight, relaxed fit
+                </label>
+
+            </div>
+
+            <div class="question">
+
+                <p>2. How do most shirts fit you?</p>
+
+                <label class="option">
+                    <input type="radio" name="q2" value="upper" required>
+                    I often need more room around the shoulders or chest
+                </label>
+
+                <label class="option">
+                    <input type="radio" name="q2" value="lower">
+                    Shirts usually fit comfortably
+                </label>
+
+                <label class="option">
+                    <input type="radio" name="q2" value="balanced">
+                    I prefer a balanced fit
+                </label>
+
+                <label class="option">
+                    <input type="radio" name="q2" value="straight">
+                    I prefer loose or straight-cut shirts
+                </label>
+
+            </div>
+
+            <div class="question">
+
+                <p>3. How do most pants or skirts fit you?</p>
+
+                <label class="option">
+                    <input type="radio" name="q3" value="upper" required>
+                    I often need more room around the waist
+                </label>
+
+                <label class="option">
+                    <input type="radio" name="q3" value="lower">
+                    I often need more room around the hips or thighs
+                </label>
+
+                <label class="option">
+                    <input type="radio" name="q3" value="balanced">
+                    They usually fit comfortably
+                </label>
+
+                <label class="option">
+                    <input type="radio" name="q3" value="straight">
+                    I prefer straight or relaxed-cut bottoms
+                </label>
+
+            </div>
+
+            <button type="submit" class="btn">
+                Identify My Silhouette
+            </button>
+
+            <button type="reset" class="btn"
+                style="background:#8baec5;">
+                Clear Answers
+            </button>
+
+        </form>
+
+    </div>
+
+    <!-- RESULTS -->
+    <div id="result">
+
+        <h2>Your Assessment Result</h2>
+
+        <p>Your suggested clothing-fit category is:</p>
+
+        <div class="result-name" id="resultName"></div>
+
+        <p class="result-description" id="description"></p>
+
+        <h3 style="margin-top:20px;">Clothing Suggestions</h3>
+
+        <ul id="suggestions"></ul>
+
+        <p style="font-size:12px; color:#668399; margin-top:15px;">
+            This is an educational demo based on your answers,
+            not a medical or scientific body assessment.
+            No category is better than another.
+        </p>
+
+        <button class="btn" onclick="resetSystem()">
+            Try Again
+        </button>
+
+    </div>
+
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+
+    <h2 style="color:#2675a5; margin-bottom:15px;">
+        About BodyType AI
+    </h2>
+
+    <p>
+        BodyType AI is a web-based educational project
+        designed to help users explore their clothing-fit
+        preferences and silhouette patterns.
+
+        It provides an easy-to-use interface where users
+        can preview an optional image and answer a short
+        questionnaire to receive a suggested category
+        and general clothing suggestions.
+    </p>
+
+</section>
+
+<footer>
+
+    <p>© 2026 BodyType AI | Silhouette Identification System</p>
+
+    <p>Designed with 🩵 and creativity.</p>
+
+</footer>
+
+<script>
+
+// IMAGE PREVIEW
+const photoInput = document.getElementById("photo");
+const preview = document.getElementById("preview");
+
+let currentImageURL = null;
+
+photoInput.addEventListener("change", function() {
+
+    const file = this.files[0];
+
+    if (currentImageURL) {
+        URL.revokeObjectURL(currentImageURL);
+        currentImageURL = null;
+    }
+
+    if (!file) {
+        preview.style.display = "none";
+        return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+        alert("Please select a valid image.");
+        this.value = "";
+        preview.style.display = "none";
+        return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+        alert("Please choose an image smaller than 5 MB.");
+        this.value = "";
+        preview.style.display = "none";
+        return;
+    }
+
+    currentImageURL = URL.createObjectURL(file);
+
+    preview.src = currentImageURL;
+    preview.style.display = "block";
+
+});
+
+
+// IDENTIFICATION LOGIC
+document.getElementById("assessment")
+.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    const formData = new FormData(this);
+
+    const answers = [
+        formData.get("q1"),
+        formData.get("q2"),
+        formData.get("q3")
+    ];
+
+    const counts = {
+        upper: 0,
+        lower: 0,
+        balanced: 0,
+        straight: 0
+    };
+
+    answers.forEach(answer => {
+        counts[answer]++;
+    });
+
+    const names = {
+        upper: "Upper-Body Fit Preference",
+        lower: "Lower-Body Fit Preference",
+        balanced: "Balanced Fit Preference",
+        straight: "Straight-Fit Preference"
+    };
+
+    const descriptions = {
+        upper:
+        "Your answers suggest that you often prefer additional room in upper-body clothing. This can help guide your clothing selections.",
+
+        lower:
+        "Your answers suggest that you often prefer additional room in lower-body clothing. You may find it useful to explore different bottom styles and cuts.",
+
+        balanced:
+        "Your answers suggest that you generally prefer balanced clothing fits across different areas.",
+
+        straight:
+        "Your answers suggest that you prefer relaxed and straight-cut clothing styles."
+    };
+
+    const suggestions = {
+        upper: [
+            "Try different shirt cuts and shoulder fits.",
+            "Explore comfortable, well-fitted tops.",
+            "Choose clothing that allows comfortable movement."
+        ],
+
+        lower: [
+            "Explore different trouser and skirt cuts.",
+            "Try relaxed-fit bottoms.",
+            "Choose comfortable fabrics that allow movement."
+        ],
+
+        balanced: [
+            "Explore different clothing styles.",
+            "Try both fitted and relaxed clothing.",
+            "Experiment with different outfit combinations."
+        ],
+
+        straight: [
+            "Explore straight-cut clothing.",
+            "Try relaxed-fit shirts and trousers.",
+            "Experiment with layered outfits."
+        ]
+    };
+
+    // Find the highest category score
+    const highest = Math.max(...Object.values(counts));
+
+    const winners = Object.keys(counts).filter(
+        key => counts[key] === highest
+    );
+
+    let category;
+
+    if (winners.length > 1) {
+        category = "mixed";
+    } else {
+        category = winners[0];
+    }
+
+    const resultName = document.getElementById("resultName");
+    const description = document.getElementById("description");
+    const suggestionList = document.getElementById("suggestions");
+
+    if (category === "mixed") {
+
+        resultName.textContent = "Mixed Fit Preferences";
+
+        description.textContent =
+            "Your answers show different clothing-fit preferences. You can explore more than one clothing style.";
+
+        suggestionList.innerHTML = `
+            <li>Try different clothing cuts.</li>
+            <li>Choose comfortable clothing combinations.</li>
+            <li>Experiment with different styles.</li>
+        `;
+
+    } else {
+
+        resultName.textContent = names[category];
+
+        description.textContent = descriptions[category];
+
+        suggestionList.innerHTML = "";
+
+        suggestions[category].forEach(item => {
+
+            const li = document.createElement("li");
+
+            li.textContent = item;
+
+            suggestionList.appendChild(li);
+
+        });
+
+    }
+
+    document.getElementById("result").style.display = "block";
+
+    document.getElementById("result").scrollIntoView({
+        behavior: "smooth"
+    });
+
+});
+
+
+// RESET SYSTEM
+function resetSystem() {
+
+    document.getElementById("assessment").reset();
+
+    document.getElementById("result").style.display = "none";
+
+    photoInput.value = "";
+
+    if (currentImageURL) {
+        URL.revokeObjectURL(currentImageURL);
+        currentImageURL = null;
+    }
+
+    preview.src = "";
+    preview.style.display = "none";
+
+    document.getElementById("identify").scrollIntoView({
+        behavior: "smooth"
+    });
+
+}
+
+</script>
+
+</body>
+</html>
